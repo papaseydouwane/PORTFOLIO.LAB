@@ -11,7 +11,7 @@ def index():
     """Page de présentation de l'application (Landing Page)"""
     if current_user.is_authenticated:
         return redirect(url_for('user.dashboard'))
-    return render_template('public/landing.html') # Nous allons créer ce fichier
+    return render_template('login.html') 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
