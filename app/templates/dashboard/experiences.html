@@ -1,0 +1,123 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-5xl mx-auto">
+    
+    <div class="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <a href="{{ url_for('user.dashboard') }}" class="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-colors mb-4">
+                <div class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Retour Cockpit</span>
+            </a>
+            <h1 class="text-4xl font-black tracking-tighter text-slate-900">Parcours <span class="text-emerald-500 italic">Professionnel.</span></h1>
+            <p class="text-slate-500 font-medium mt-2">Démontrez votre impact et vos succès en entreprise.</p>
+        </div>
+
+        <form action="{{ url_for('user.add_section', section_type='experience') }}" method="POST">
+            <button type="submit" class="group bg-emerald-500 text-white px-8 py-4 rounded-2xl shadow-[0_15px_30px_rgba(16,185,129,0.2)] hover:bg-slate-900 transition-all flex items-center gap-3">
+                <span class="text-xl group-hover:rotate-12 transition-transform">💼</span>
+                <span class="text-xs font-black uppercase tracking-widest">Ajouter un poste</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="space-y-10">
+        {% for section in sections %}
+        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] overflow-hidden group hover:border-emerald-200 transition-all duration-500 border-l-[12px] border-l-emerald-500">
+            
+            <div class="px-10 py-5 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">Poste #{{ loop.index }}</span>
+                    <span class="text-xs font-bold text-slate-400 italic">{{ section.content.entreprise or 'Nouvelle entreprise' }}</span>
+                </div>
+                <a href="{{ url_for('user.delete_section', section_id=section.id) }}" 
+                   class="flex items-center gap-2 text-[10px] font-black uppercase text-slate-300 hover:text-rose-500 transition-all"
+                   onclick="return confirm('Supprimer cette expérience ?')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round"/></svg>
+                    Retirer
+                </a>
+            </div>
+
+            <form action="{{ url_for('user.update_section', section_id=section.id) }}" method="POST" class="p-10 md:p-14">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Intitulé du poste & Responsabilités</label>
+                        <input type="text" name="poste" value="{{ section.content.poste }}" 
+                               class="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white rounded-2xl py-4 px-6 text-2xl font-black text-slate-900 transition-all outline-none" 
+                               placeholder="Ex: Senior Product Designer, Stagiaire Dev...">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Entreprise / Institution</label>
+                        <div class="relative">
+                            <input type="text" name="entreprise" value="{{ section.content.entreprise }}" 
+                                   class="w-full bg-slate-50 border-none rounded-xl py-3 px-5 font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 transition-all" 
+                                   placeholder="Ex: Google, Start-up, Cabinet X">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-20 text-xl">🏢</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Période (Début — Fin)</label>
+                        <div class="relative">
+                            <input type="text" name="periode" value="{{ section.content.periode }}" 
+                                   class="w-full bg-slate-50 border-none rounded-xl py-3 px-5 font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 transition-all" 
+                                   placeholder="Ex: Janv 2023 — Présent">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">⏳</span>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest">Missions & Impact</label>
+                            <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded italic">Pensez en termes de résultats !</span>
+                        </div>
+                        <textarea name="missions" rows="5" 
+                                  class="w-full bg-slate-50 border-none rounded-[2rem] p-8 text-slate-600 font-medium leading-relaxed focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none" 
+                                  placeholder="• Management d'une équipe de 4 personnes...&#10;• Augmentation du CA de 15% grâce à...&#10;• Refonte complète de l'interface utilisateur...">{{ section.content.missions }}</textarea>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <div class="bg-slate-900 rounded-3xl p-8 relative overflow-hidden group/stack">
+                            <div class="relative z-10">
+                                <label class="block text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-4">Technologies & Outils Maîtrisés</label>
+                                <input type="text" name="technos" value="{{ section.content.technos }}" 
+                                       class="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-white font-mono text-sm focus:border-emerald-500 focus:ring-0 outline-none transition-all" 
+                                       placeholder="Ex: React, AWS, Photoshop, Agile, CRM...">
+                                <p class="text-[9px] text-slate-500 mt-4 uppercase tracking-widest font-bold italic">Séparez par des virgules pour un affichage en badges dynamiques.</p>
+                            </div>
+                            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover/stack:bg-emerald-500/20 transition-colors"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-slate-50 flex justify-end">
+                    <button type="submit" class="px-12 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-200 active:scale-95">
+                        Sauvegarder l'expérience 💾
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+            <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-3xl mb-6">🔨</div>
+            <h3 class="text-xl font-bold text-slate-900">En construction.</h3>
+            <p class="text-slate-400 mt-2 font-medium">Vos futures opportunités commencent ici.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-20 p-10 bg-white rounded-[3rem] border border-slate-100 flex flex-col md:flex-row items-center gap-10">
+        <div class="flex-shrink-0 w-24 h-24 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white text-4xl shadow-2xl shadow-emerald-200 rotate-6">🏆</div>
+        <div>
+            <h4 class="text-lg font-black text-slate-900 mb-2 uppercase tracking-tighter">Prêt pour le recrutement ?</h4>
+            <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                Les recruteurs passent en moyenne <strong>6 secondes</strong> sur un CV. Utilisez des verbes d'action (Concevoir, Piloter, Optimiser) et des chiffres concrets pour capter l'attention immédiatement.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

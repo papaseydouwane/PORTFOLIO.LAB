@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div class="h-screen bg-[#050505] flex flex-col items-center justify-center text-center px-6">
+    <h1 class="text-[15vw] font-black leading-none opacity-10 select-none">404</h1>
+    <div class="absolute flex flex-col items-center">
+        <p class="font-serif italic text-4xl md:text-6xl text-white mb-8">Page Introuvable.</p>
+        <p class="text-white/40 max-w-md mb-12">L'œuvre que vous cherchez a probablement été déplacée ou n'existe pas encore dans cette dimension.</p>
+        <a href="/" class="px-10 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-primary hover:text-white transition-all">
+            Retour à l'accueil
+        </a>
+    </div>
+</div>
+{% endblock %}

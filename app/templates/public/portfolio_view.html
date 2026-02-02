@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}{{ portfolio.slug | upper }} — Œuvre Numérique{% endblock %}
+
+{% block layout %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,600&family=Plus+Jakarta+Sans:wght@200;400;800&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary: {{ portfolio.theme_config.get('primary_color', '#6366F1') }};
+        --font-main: 'Plus Jakarta Sans', sans-serif;
+        --font-accent: 'Cormorant Garamond', serif;
+        --font-mono: 'Space Grotesk', monospace;
+
+        /* LOGIQUE DE COULEURS DYNAMIQUE */
+        {% if portfolio.theme_config.get('bg_mode') == 'light' %}
+            --fond-site: #fcfcfc;
+            --texte-principal: #0f172a;
+            --texte-muet: #64748b;
+            --bordure-douce: rgba(0,0,0,0.06);
+            --nav-bg: rgba(255,255,255,0.7);
+            --card-bg: #ffffff;
+        {% else %}
+            --fond-site: #050505;
+            --texte-principal: #ffffff;
+            --texte-muet: rgba(255,255,255,0.5);
+            --bordure-douce: rgba(255,255,255,0.08);
+            --nav-bg: rgba(0,0,0,0.4);
+            --card-bg: #111111;
+        {% endif %}
+    }
+
+    body { 
+        font-family: var(--font-main); 
+        background-color: var(--fond-site); 
+        color: var(--texte-principal);
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+        transition: background-color 0.5s ease;
+    }
+
+    /* --- EFFET DE GRAIN (NOISE) --- */
+    {% if portfolio.theme_config.get('show_grain') %}
+    .noise::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url('https://grainy-gradients.vercel.app/noise.svg');
+        opacity: 0.05;
+        z-index: 9999;
+        pointer-events: none;
+    }
+    {% endif %}
+
+    /* --- STYLE DES CARTES (GLASS VS BRUTALIST) --- */
+    .dynamic-card {
+        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        {% if portfolio.theme_config.get('card_style') == 'brutalist' %}
+            background: white;
+            color: black;
+            border: 3px solid black;
+            box-shadow: 10px 10px 0px var(--primary);
+            border-radius: 0.5rem;
+        {% else %}
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--bordure-douce);
+            border-radius: 2rem;
+        {% endif %}
+    }
+
+    .mega-titre {
+        font-size: clamp(3rem, 10vw, 9rem);
+        line-height: 0.85;
+        letter-spacing: -0.05em;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .serif-italique {
+        font-family: var(--font-accent);
+        font-style: italic;
+        font-weight: 300;
+        color: var(--primary);
+        text-transform: none;
+    }
+
+    .glow-dot {
+        position: fixed;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+        opacity: {% if portfolio.theme_config.get('bg_mode') == 'light' %}0.08{% else %}0.15{% endif %};
+        pointer-events: none;
+        z-index: 1;
+        transform: translate(-50%, -50%);
+        filter: blur(40px);
+    }
+
+    .barre-progression {
+        position: fixed;
+        top: 0; left: 0; height: 3px;
+        background: var(--primary);
+        z-index: 1000;
+        width: 0%;
+    }
+
+    .btn-expertise {
+        position: relative;
+        padding: 1.2rem 2.5rem;
+        background: transparent;
+        border: 1px solid var(--bordure-douce);
+        color: var(--texte-principal);
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 0.7rem;
+        letter-spacing: 0.3em;
+        border-radius: 100px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        text-decoration: none;
+    }
+
+    .btn-expertise:hover {
+        background: var(--texte-principal);
+        color: var(--fond-site);
+        transform: translateY(-5px);
+    }
+
+    /* --- NAVIGATION SIDEBAR --- */
+    {% if portfolio.theme_config.get('nav_style') == 'sidebar' %}
+    .nav-sidebar {
+        position: fixed;
+        left: 0; top: 0; height: 100vh;
+        width: 80px;
+        border-right: 1px solid var(--bordure-douce);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 2rem; z-index: 100;
+        background: var(--fond-site);
+    }
+    .nav-sidebar a { 
+        writing-mode: vertical-rl; 
+        transform: rotate(180deg);
+        font-size: 10px; font-weight: 900; letter-spacing: 0.2em;
+        text-transform: uppercase;
+    }
+    .main-content { margin-left: 80px; }
+    {% endif %}
+</style>
+
+<div class="noise"></div>
+<div class="barre-progression" id="scroll-progress"></div>
+<div class="glow-dot" id="cursor-glow"></div>
+
+{% if portfolio.theme_config.get('nav_style') == 'sidebar' %}
+    <aside class="nav-sidebar">
+        <a href="#contact" class="hover:text-primary transition">Contact</a>
+        <a href="#parcours" class="hover:text-primary transition">Parcours</a>
+        <a href="#projets" class="hover:text-primary transition">Travaux</a>
+        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-black mb-8">{{ portfolio.slug[:2] | upper }}</div>
+    </aside>
+{% else %}
+    <nav class="fixed top-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-2xl px-6">
+        <div class="bg-nav-bg backdrop-blur-2xl border border-bordure-douce p-2 rounded-full flex justify-between items-center pr-6 shadow-2xl">
+            <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-black text-xs">
+                {{ portfolio.slug[:2] | upper }}
+            </div>
+            <div class="flex gap-8">
+                <a href="#projets" class="text-[10px] font-bold tracking-[0.2em] uppercase hover:text-primary transition">Travaux</a>
+                <a href="#parcours" class="text-[10px] font-bold tracking-[0.2em] uppercase hover:text-primary transition">Parcours</a>
+                <a href="#contact" class="text-[10px] font-bold tracking-[0.2em] uppercase hover:text-primary transition">Contact</a>
+            </div>
+        </div>
+    </nav>
+{% endif %}
+
+<main class="relative z-10 {{ 'main-content' if portfolio.theme_config.get('nav_style') == 'sidebar' }}">
+    {% for section in portfolio.sections %}
+        
+        {% if section.type == 'hero' %}
+        <section class="min-h-screen flex flex-col justify-center px-6 relative">
+            <div class="max-w-7xl mx-auto w-full">
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <p class="font-mono text-primary text-[10px] tracking-[0.5em] mb-12 flex items-center gap-6">
+                        <span class="w-12 h-[1px] bg-primary"></span> 
+                        PORTEFOLIO — 2026
+                    </p>
+                    <h1 class="mega-titre mb-12">
+                        {{ section.content.full_name.split(' ')[0] }}<br>
+                        <span class="serif-italique">{{ section.content.full_name.split(' ')[1:] | join(' ') }}</span>
+                    </h1>
+                    
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
+                        <div class="flex gap-12 opacity-60">
+                             <div class="flex flex-col">
+                                <span class="text-[10px] font-bold uppercase tracking-widest">Localisation</span>
+                                <span class="font-mono text-sm tracking-tighter uppercase">Dakar, SN</span>
+                             </div>
+                             <div class="w-px h-8 bg-texte-principal/20"></div>
+                             <div class="flex flex-col">
+                                <span class="text-[10px] font-bold uppercase tracking-widest">Expertise</span>
+                                <span class="font-mono text-sm tracking-tighter uppercase">Creative Mind</span>
+                             </div>
+                        </div>
+
+                        <a href="{{ url_for('render.expertise', slug=portfolio.slug) }}" 
+                            class="btn-expertise group" data-aos="fade-left" data-aos-delay="400">
+                            Explorer le savoir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% elif section.type == 'projet' %}
+        <section id="projets" class="py-40 px-6 border-t border-bordure-douce">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid md:grid-cols-12 gap-16 items-center">
+                    <div class="md:col-span-7" data-aos="fade-right">
+                        <div class="group relative overflow-hidden rounded-3xl aspect-[16/11]">
+                            <img src="{{ section.content.image_url or 'https://images.unsplash.com/photo-1635776062127-d379bfcbb9c8?q=80&w=2560&auto=format&fit=crop' }}" 
+                                 class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 shadow-2xl">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-5 space-y-8" data-aos="fade-left">
+                        <div class="space-y-2">
+                            <span class="text-primary font-mono text-[10px] uppercase tracking-[0.4em]">Archive {{ loop.index }}</span>
+                            <h3 class="text-5xl md:text-7xl font-extrabold tracking-tighter leading-none">{{ section.content.nom_projet }}</h3>
+                        </div>
+                        <p class="text-texte-muet text-xl leading-relaxed font-light max-w-md">
+                            {{ section.content.description }}
+                        </p>
+                        <div class="pt-6">
+                            <a href="{{ section.content.url_demo }}" class="inline-flex items-center gap-6 group">
+                                <div class="w-14 h-14 rounded-full border border-bordure-douce flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all duration-500">
+                                    <svg class="w-5 h-5 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2"></path></svg>
+                                </div>
+                                <span class="text-xs font-black uppercase tracking-[0.3em]">Explorer</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% elif section.type == 'experience' %}
+        <section id="parcours" class="py-32 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="dynamic-card p-12 md:p-16 relative overflow-hidden" data-aos="zoom-in-up">
+                    <div class="relative z-10">
+                        <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
+                            <h3 class="text-3xl font-bold tracking-tight">{{ section.content.poste }}</h3>
+                            <div class="font-mono text-[10px] text-primary tracking-widest uppercase">{{ section.content.periode }}</div>
+                        </div>
+                        <p class="text-primary font-serif italic text-xl mb-6 opacity-80">{{ section.content.entreprise }}</p>
+                        <p class="text-texte-muet text-base leading-relaxed pl-6 border-l border-primary/20">
+                            {{ section.content.missions }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    {% endfor %}
+
+    <footer id="contact" class="py-24 px-6 {% if portfolio.theme_config.get('bg_mode') == 'light' %}bg-slate-900 text-white{% else %}bg-white text-black{% endif %} rounded-t-[3rem] transition-colors duration-700">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-12">
+            <div class="space-y-6 text-left">
+                <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none">FAISONS<br>ÉQUIPE.</h2>
+                <a href="mailto:{{ portfolio.owner.email }}" class="text-xl font-light hover:text-primary transition-all block underline decoration-primary">
+                    {{ portfolio.owner.email }}
+                </a>
+            </div>
+            
+            <div class="flex gap-8 font-black tracking-[0.2em] text-[10px] uppercase">
+                <a href="#" class="hover:text-primary transition">Linkedin</a>
+                <a href="#" class="hover:text-primary transition">Github</a>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({ duration: 1200, once: true, easing: 'ease-out-cubic' });
+
+    window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        document.getElementById("scroll-progress").style.width = (winScroll / height) * 100 + "%";
+    });
+
+    const glow = document.getElementById('cursor-glow');
+    let mouseX = 0, mouseY = 0, ballX = 0, ballY = 0;
+    document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+    function animateGlow() {
+        ballX += (mouseX - ballX) * 0.1;
+        ballY += (mouseY - ballY) * 0.1;
+        glow.style.left = ballX + 'px'; glow.style.top = ballY + 'px';
+        requestAnimationFrame(animateGlow);
+    }
+    animateGlow();
+</script>
+{% endblock %}

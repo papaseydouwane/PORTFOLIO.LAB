@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<style>
+    /* Animation de fond fluide */
+    @keyframes orbit {
+        from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+        to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+    }
+    
+    .blob {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        filter: blur(60px);
+        z-index: -1;
+        animation: orbit 20s linear infinite;
+    }
+
+    .auth-glass {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+</style>
+
+<div class="min-h-screen relative overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    
+    <div class="blob" style="top: -10%; left: -10%;"></div>
+    <div class="blob" style="bottom: -10%; right: -10%; animation-duration: 30s; animation-direction: reverse;"></div>
+
+    <div class="max-w-md w-full z-10">
+        <div class="text-center mb-10">
+            <a href="{{ url_for('auth.index') }}" class="inline-block">
+                <h2 class="text-2xl font-black tracking-tighter text-slate-900 uppercase">
+                    Portfolio<span class="text-indigo-600">.Lab</span>
+                </h2>
+                <div class="h-1 w-8 bg-indigo-600 mx-auto mt-1 rounded-full"></div>
+            </a>
+        </div>
+
+        <div class="auth-glass p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white">
+            
+            {# Zone de notifications flash #}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-6 p-4 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-3 
+                            {% if category == 'danger' %} bg-red-50 text-red-600 border border-red-100 
+                            {% elif category == 'success' %} bg-emerald-50 text-emerald-600 border border-emerald-100
+                            {% else %} bg-indigo-50 text-indigo-600 border border-indigo-100 {% endif %}">
+                            <span class="w-2 h-2 rounded-full animate-pulse 
+                                {% if category == 'danger' %} bg-red-600 
+                                {% elif category == 'success' %} bg-emerald-600 
+                                {% else %} bg-indigo-600 {% endif %}"></span>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {# Contenu spécifique (Login ou Register) #}
+            <div class="space-y-6">
+                {% block auth_content %}{% endblock %}
+            </div>
+        </div>
+
+        <p class="mt-8 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">
+            Sécurisé par AES-256 • 2026
+        </p>
+    </div>
+</div>
+
+<script>
+    // Ajout d'une légère interaction de parallaxe sur la carte
+    const card = document.querySelector('.auth-glass');
+    document.addEventListener('mousemove', (e) => {
+        const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+        const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+        card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+</script>
+{% endblock %}

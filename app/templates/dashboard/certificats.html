@@ -1,0 +1,121 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-5xl mx-auto">
+    
+    <div class="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <a href="{{ url_for('user.dashboard') }}" class="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-colors mb-4">
+                <div class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Retour Cockpit</span>
+            </a>
+            <h1 class="text-4xl font-black tracking-tighter text-slate-900">Certifications & <span class="text-amber-500 italic">Distinctions.</span></h1>
+            <p class="text-slate-500 font-medium mt-2">Validez vos acquis avec vos badges et diplômes officiels.</p>
+        </div>
+
+        <form action="{{ url_for('user.add_section', section_type='certificat') }}" method="POST">
+            <button type="submit" class="group bg-amber-500 text-white px-8 py-4 rounded-2xl shadow-[0_15px_30px_rgba(245,158,11,0.2)] hover:bg-slate-900 transition-all flex items-center gap-3">
+                <span class="text-xl group-hover:rotate-12 transition-transform">📜</span>
+                <span class="text-xs font-black uppercase tracking-widest">Nouveau Certificat</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 gap-10">
+        {% for section in sections %}
+        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] overflow-hidden group hover:border-amber-200 transition-all duration-500">
+            
+            <div class="px-10 py-5 bg-amber-50/30 border-b border-amber-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-[0.3em]">Badge Officiel</span>
+                </div>
+                <a href="{{ url_for('user.delete_section', section_id=section.id) }}" 
+                   class="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                   onclick="return confirm('Retirer ce certificat ?')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round"/></svg>
+                </a>
+            </div>
+
+            <form action="{{ url_for('user.update_section', section_id=section.id) }}" method="POST" class="p-10 md:p-14">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Intitulé de la Certification</label>
+                        <input type="text" name="nom_certif" value="{{ section.content.nom_certif }}" 
+                               class="w-full bg-slate-50 border-2 border-transparent focus:border-amber-500 focus:bg-white rounded-2xl py-4 px-6 text-xl font-bold text-slate-900 transition-all outline-none" 
+                               placeholder="Ex: Google Project Management Professional...">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Organisme émetteur</label>
+                        <div class="relative">
+                            <input type="text" name="organisme" value="{{ section.content.organisme }}" 
+                                   class="w-full bg-slate-50 border-none rounded-xl py-3 px-5 font-bold text-slate-700 focus:ring-2 focus:ring-amber-500/20 transition-all" 
+                                   placeholder="Coursera, AWS, Udacity...">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-lg">🏢</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Date d'obtention</label>
+                        <div class="relative">
+                            <input type="text" name="date_emission" value="{{ section.content.date_emission }}" 
+                                   class="w-full bg-slate-50 border-none rounded-xl py-3 px-5 font-bold text-slate-700 focus:ring-2 focus:ring-amber-500/20 transition-all" 
+                                   placeholder="Ex: Janvier 2026">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">📅</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Identifiant Unique</label>
+                        <input type="text" name="cert_id" value="{{ section.content.cert_id }}" 
+                               class="w-full bg-white border-none rounded-lg py-2 px-4 font-mono text-xs text-amber-600 focus:ring-1 focus:ring-amber-500" 
+                               placeholder="ABC-123-XYZ">
+                    </div>
+
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Lien de vérification</label>
+                        <div class="flex gap-2">
+                            <input type="url" name="url_verif" value="{{ section.content.url_verif }}" 
+                                   class="flex-1 bg-white border-none rounded-lg py-2 px-4 text-xs font-medium focus:ring-1 focus:ring-amber-500" 
+                                   placeholder="https://verify.cert/...">
+                            {% if section.content.url_verif %}
+                            <a href="{{ section.content.url_verif }}" target="_blank" class="p-2 bg-amber-500 text-white rounded-lg hover:bg-slate-900 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-slate-50 flex justify-end">
+                    <button type="submit" class="w-full md:w-auto px-12 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-amber-500 transition-all shadow-xl hover:shadow-amber-200">
+                        Mettre à jour le certificat 🎖️
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+            <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-3xl mb-6">🏜️</div>
+            <h3 class="text-xl font-bold text-slate-900">Aucun badge affiché.</h3>
+            <p class="text-slate-400 mt-2 font-medium">Ajoutez vos succès pour rassurer vos futurs partenaires.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-16 p-8 bg-amber-900 rounded-[2.5rem] text-white flex items-start gap-6 relative overflow-hidden">
+        <span class="text-3xl relative z-10">💡</span>
+        <div class="relative z-10">
+            <h4 class="text-xs font-black uppercase tracking-widest mb-2 text-amber-200">Conseil d'expert</h4>
+            <p class="text-sm leading-relaxed text-amber-50/80">
+                L'URL de vérification est cruciale. Elle permet aux recruteurs de valider l'authenticité de votre diplôme en un clic. Ne la négligez pas !
+            </p>
+        </div>
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+</div>
+{% endblock %}

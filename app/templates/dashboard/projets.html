@@ -1,0 +1,134 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-6xl mx-auto">
+    
+    <div class="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div>
+            <a href="{{ url_for('user.dashboard') }}" class="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-colors mb-4">
+                <div class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Retour Cockpit</span>
+            </a>
+            <h1 class="text-4xl font-black tracking-tighter text-slate-900">Portfolio & <span class="text-orange-500 italic">Réalisations.</span></h1>
+            <p class="text-slate-500 font-medium mt-2">Exposez vos meilleurs travaux et prouvez votre expertise.</p>
+        </div>
+
+        <form action="{{ url_for('user.add_section', section_type='projet') }}" method="POST">
+            <button type="submit" class="group bg-orange-500 text-white px-8 py-4 rounded-2xl shadow-[0_15px_30px_rgba(249,115,22,0.2)] hover:bg-slate-900 transition-all flex items-center gap-3">
+                <span class="text-xl group-hover:rotate-12 transition-transform">🚀</span>
+                <span class="text-xs font-black uppercase tracking-widest">Nouveau Projet</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="space-y-12">
+        {% for section in sections %}
+        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.03)] overflow-hidden group hover:border-orange-200 transition-all duration-500">
+            
+            <div class="px-10 py-5 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-2 w-2 rounded-full bg-orange-500"></span>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Projet #{{ loop.index }} — Archive {{ section.content.annee or '2026' }}</span>
+                </div>
+                <a href="{{ url_for('user.delete_section', section_id=section.id) }}" 
+                   class="flex items-center gap-2 text-[10px] font-black uppercase text-slate-300 hover:text-rose-500 transition-colors"
+                   onclick="return confirm('Supprimer définitivement ce projet ?')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round"/></svg>
+                    Supprimer
+                </a>
+            </div>
+
+            <form action="{{ url_for('user.update_section', section_id=section.id) }}" method="POST" class="p-10 md:p-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    
+                    <div class="lg:col-span-5 space-y-8">
+                        <div class="relative group/img">
+                            <div class="aspect-[16/10] bg-slate-100 rounded-[2rem] overflow-hidden border-4 border-slate-50">
+                                <img src="{{ section.content.image_url or 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop' }}" 
+                                     class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700 opacity-80 group-hover/img:opacity-100">
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">URL de l'image d'aperçu</label>
+                                <input type="text" name="image_url" value="{{ section.content.image_url }}" 
+                                       class="w-full bg-slate-50 border-none rounded-xl text-xs py-3 px-4 focus:ring-2 focus:ring-orange-500/20" 
+                                       placeholder="Lien vers une capture (ex: Unsplash)">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-4">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Année</label>
+                                <input type="text" name="annee" value="{{ section.content.annee }}" 
+                                       class="w-full bg-slate-50 border-none rounded-xl py-3 px-4 font-bold text-slate-900 focus:ring-2 focus:ring-orange-500/20" placeholder="2026">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Rôle</label>
+                                <input type="text" name="role" value="{{ section.content.role }}" 
+                                       class="w-full bg-slate-50 border-none rounded-xl py-3 px-4 font-bold text-slate-900 focus:ring-2 focus:ring-orange-500/20" placeholder="Lead Designer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-8">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Titre du Projet</label>
+                            <input type="text" name="nom_projet" value="{{ section.content.nom_projet }}" 
+                                   class="w-full border-b-2 border-slate-100 focus:border-orange-500 py-4 text-3xl font-black text-slate-900 outline-none transition-all placeholder:text-slate-200" 
+                                   placeholder="Nom de la réalisation">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Description & Problématique</label>
+                            <textarea name="description" rows="5" 
+                                      class="w-full bg-slate-50 border-none rounded-[2rem] p-6 text-slate-600 leading-relaxed focus:ring-2 focus:ring-orange-500/20 transition-all outline-none" 
+                                      placeholder="Expliquez votre démarche, les outils utilisés et le résultat obtenu...">{{ section.content.description }}</textarea>
+                        </div>
+
+                        <div class="bg-orange-50/50 rounded-3xl p-6 border border-orange-100/50 flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <label class="block text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2 italic">Lien Direct (Live)</label>
+                                <div class="relative">
+                                    <input type="url" name="url_demo" value="{{ section.content.url_demo }}" 
+                                           class="w-full bg-white border-none rounded-xl py-3 pl-4 pr-10 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-orange-500" placeholder="https://">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-300">🔗</span>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2 italic">Code / Source</label>
+                                <div class="relative">
+                                    <input type="url" name="url_code" value="{{ section.content.url_code }}" 
+                                           class="w-full bg-white border-none rounded-xl py-3 pl-4 pr-10 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-orange-500" placeholder="https://github.com/..">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-300">⚙️</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex justify-end">
+                    <button type="submit" class="w-full md:w-auto px-12 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-orange-600 transition-all shadow-xl hover:shadow-orange-200 active:scale-95">
+                        Enregistrer les modifications ⚡
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+            <div class="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center text-4xl mb-6 animate-subtle-float">🚀</div>
+            <h3 class="text-xl font-bold text-slate-900">Votre portfolio est vide.</h3>
+            <p class="text-slate-400 mt-2 font-medium">Ajoutez votre premier projet pour impressionner vos futurs clients.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-20 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center gap-6">
+        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">📸</div>
+        <p class="text-xs text-slate-500 leading-relaxed font-medium">
+            <strong class="text-slate-900 uppercase tracking-widest block mb-1">Astuce d'Expert</strong>
+            Utilisez des visuels de haute qualité (16:10). Si vous n'avez pas de capture, utilisez des banques d'images comme <a href="https://unsplash.com" target="_blank" class="text-orange-500 underline">Unsplash</a> pour illustrer l'univers de votre projet.
+        </p>
+    </div>
+</div>
+{% endblock %}

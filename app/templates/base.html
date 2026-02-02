@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="description" content="Portfolio Factory Pro : Créez une présence digitale d'exception.">
+    <meta property="og:title" content="{% block og_title %}{{ portfolio.slug | upper if portfolio else 'Factory Pro' }}{% endblock %}">
+    <meta property="og:description" content="Découvrez un univers créatif unique façonné sur Factory Pro.">
+    <meta property="og:type" content="website">
+    
+    <title>{% block title %}Factory Pro — Studio Digital{% endblock %}</title>
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none'><rect width='40' height='40' rx='10' fill='black'/><path d='M12 10H28M12 18H24M12 10V30' stroke='white' stroke-width='4' stroke-linecap='round'/></svg>">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '{{ portfolio.theme_config.get("primary_color", "#6366F1") if portfolio else "#4F46E5" }}',
+                        surface: '#050505',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    animation: {
+                        'subtle-float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Cormorant+Garamond:ital,wght@1,300;1,600&family=Space+Grotesk:wght@300;700&display=swap');
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            background-color: #fcfcfc; /* Fond par défaut clair pour le dashboard */
+        }
+
+        /* Personnalisation Scrollbar Luxe */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: {{ portfolio.theme_config.get('primary_color', '#111') if portfolio else '#111' }}; 
+            border-radius: 20px; 
+        }
+
+        /* Gestion AOS (Animations au Scroll) */
+        [data-aos] { pointer-events: none; opacity: 0; transition-property: transform, opacity; }
+        .aos-animate { pointer-events: auto; opacity: 1; }
+
+        /* Effet de notification (Toast) */
+        .notification-toast {
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%) scale(0.9); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="selection:bg-primary selection:text-white font-sans">
+
+    <div class="fixed top-8 right-8 z-[10000] flex flex-col gap-4 max-w-sm w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="notification-toast flex items-center justify-between p-5 rounded-2xl bg-white/80 backdrop-blur-2xl border border-slate-200 shadow-[0_20px_40px_rgba(0,0,0,0.1)] group"
+                         id="toast-{{ loop.index }}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-2 h-10 rounded-full {% if category == 'success' %}bg-emerald-500{% else %}bg-rose-500{% endif %}"></div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{{ 'Succès' if category == 'success' else 'Attention' }}</p>
+                                <p class="text-sm font-bold text-slate-800 leading-tight">{{ message }}</p>
+                            </div>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="min-h-screen">
+        {% block layout %}{% endblock %}
+    </div>
+
+    <script>
+        // Disparition automatique des messages flash
+        document.addEventListener('DOMContentLoaded', () => {
+            const toasts = document.querySelectorAll('.notification-toast');
+            toasts.forEach((toast) => {
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    toast.style.transition = 'all 0.5s ease';
+                    setTimeout(() => toast.remove(), 500);
+                }, 4000);
+            });
+        });
+    </script>
+</body>
+</html>

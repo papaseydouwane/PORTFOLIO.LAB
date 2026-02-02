@@ -1,0 +1,101 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-5xl mx-auto">
+    <div class="mb-8 flex items-center justify-between">
+        <a href="{{ url_for('user.dashboard') }}" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-2 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Retour au Cockpit
+        </a>
+        
+        <form action="{{ url_for('user.add_section', section_type='article') }}" method="POST">
+            <button type="submit" class="bg-purple-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-purple-700 transition flex items-center gap-2 font-bold">
+                <span>🔬</span> Ajouter une publication
+            </button>
+        </form>
+    </div>
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">📚 Publications & Travaux de Recherche</h1>
+    <p class="text-gray-500 mb-8">Valorisez vos articles de revue, communications de conférence, thèses ou rapports techniques.</p>
+
+    <div class="space-y-10">
+        {% for section in sections %}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden border-l-4 border-l-purple-600">
+            
+            <div class="bg-purple-50 px-8 py-3 border-b border-purple-100 flex justify-between items-center">
+                <span class="text-purple-700 font-bold text-xs uppercase tracking-widest">Publication Académique</span>
+                <a href="{{ url_for('user.delete_section', section_id=section.id) }}" 
+                   class="text-red-400 hover:text-red-600 text-sm"
+                   onclick="return confirm('Supprimer cette publication ?')">
+                    Supprimer
+                </a>
+            </div>
+
+            <form action="{{ url_for('user.update_section', section_id=section.id) }}" method="POST" class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Titre complet de l'article ou de la thèse</label>
+                        <input type="text" name="titre_article" value="{{ section.content.titre_article }}" 
+                               class="w-full border-gray-300 rounded-xl focus:ring-purple-500 py-3 font-serif italic" 
+                               placeholder="Ex: Impact de l'IA sur la cybersécurité en Afrique de l'Ouest">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Type de support</label>
+                        <select name="type_support" class="w-full border-gray-300 rounded-xl focus:ring-purple-500">
+                            <option value="journal" {% if section.content.type_support == 'journal' %}selected{% endif %}>Revue Scientifique (Journal)</option>
+                            <option value="conf" {% if section.content.type_support == 'conf' %}selected{% endif %}>Conférence / Colloque</option>
+                            <option value="thesis" {% if section.content.type_support == 'thesis' %}selected{% endif %}>Thèse / Mémoire</option>
+                            <option value="report" {% if section.content.type_support == 'report' %}selected{% endif %}>Rapport Technique</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Date de parution</label>
+                        <input type="text" name="date_parution" value="{{ section.content.date_parution }}" 
+                               class="w-full border-gray-300 rounded-xl" placeholder="Ex: Octobre 2025">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Nom de la revue ou de la conférence</label>
+                        <input type="text" name="revue" value="{{ section.content.revue }}" 
+                               class="w-full border-gray-300 rounded-xl" placeholder="Ex: IEEE Transactions on Cloud Computing">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Co-auteurs (Séparez par des virgules)</label>
+                        <input type="text" name="auteurs" value="{{ section.content.auteurs }}" 
+                               class="w-full border-gray-300 rounded-xl" placeholder="Ex: Jean Dupont, Marie Curie">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Lien DOI ou URL (Accès libre)</label>
+                        <input type="text" name="doi" value="{{ section.content.doi }}" 
+                               class="w-full border-gray-300 rounded-xl" placeholder="Ex: 10.1038/s41586-020-2012-7">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Résumé (Abstract)</label>
+                        <textarea name="abstract" rows="4" class="w-full border-gray-300 rounded-xl focus:ring-purple-500 text-sm leading-relaxed" 
+                                  placeholder="Brève description de la problématique et des résultats...">{{ section.content.abstract }}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end">
+                    <button type="submit" class="bg-purple-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-800 transition shadow-lg">
+                        Enregistrer la publication
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+            <p class="text-gray-400">Aucune publication scientifique répertoriée.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

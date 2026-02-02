@@ -1,0 +1,133 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-5xl mx-auto">
+    
+    <div class="mb-10 flex items-center justify-between">
+        <a href="{{ url_for('user.dashboard') }}" class="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-colors">
+            <div class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-xs font-black uppercase tracking-widest">Tableau de bord</span>
+        </a>
+        <div class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-tighter">
+            Édition Section : Entête
+        </div>
+    </div>
+
+    <div class="mb-12">
+        <h1 class="text-4xl font-black tracking-tighter text-slate-900 mb-2">Identité & <span class="text-primary italic">Bio.</span></h1>
+        <p class="text-slate-500 font-medium">Définissez la première impression que vos visiteurs auront de vous.</p>
+    </div>
+
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] overflow-hidden">
+        
+        <div class="h-40 bg-slate-900 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/40 to-transparent"></div>
+        </div>
+
+        <form action="{{ url_for('user.update_section', section_id=section.id) }}" method="POST" class="p-10 md:p-16 -mt-20 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                
+                <div class="lg:col-span-4 space-y-10">
+                    <div class="flex flex-col items-center lg:items-start">
+                        <div class="relative group mb-6">
+                            <div class="absolute inset-0 bg-primary rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <img src="{{ section.content.photo_url or 'https://ui-avatars.com/api/?name=' + current_user.email + '&background=random' }}" 
+                                 class="relative w-40 h-40 rounded-[3rem] border-8 border-white shadow-2xl object-cover bg-slate-50 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                        </div>
+                        
+                        <div class="w-full">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Lien de la photo</label>
+                            <input type="text" name="photo_url" value="{{ section.content.photo_url }}" 
+                                   class="w-full bg-slate-50 border-none rounded-xl text-xs py-3 px-4 focus:ring-2 focus:ring-primary/20 transition-all" 
+                                   placeholder="https://image.com/ma-photo.jpg">
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 pt-6 border-t border-slate-50">
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 uppercase tracking-widest mb-2">Nom complet</label>
+                            <input type="text" name="full_name" value="{{ section.content.full_name }}" 
+                                   class="w-full border-slate-200 border-2 rounded-2xl py-3 px-4 font-bold text-slate-900 focus:border-primary focus:ring-0 transition-all outline-none" 
+                                   placeholder="Prénom & Nom">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 uppercase tracking-widest mb-2">Titre / Rôle</label>
+                            <input type="text" name="title" value="{{ section.content.title }}" 
+                                   class="w-full border-slate-200 border-2 rounded-2xl py-3 px-4 font-bold text-slate-900 focus:border-primary focus:ring-0 transition-all outline-none" 
+                                   placeholder="Ex: Designer Digital">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 space-y-10">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="block text-xs font-black text-slate-900 uppercase tracking-widest">Résumé Biographique</label>
+                            <span class="text-[10px] text-slate-400 font-mono">Markdown supporté</span>
+                        </div>
+                        <textarea name="bio" rows="6" 
+                                  class="w-full border-slate-200 border-2 rounded-[2rem] p-6 text-slate-600 leading-relaxed focus:border-primary focus:ring-0 transition-all outline-none italic font-serif text-lg" 
+                                  placeholder="Décrivez votre vision en quelques phrases percutantes...">{{ section.content.bio }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                                <h4 class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Coordonnées</h4>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 italic">@</span>
+                                    <input type="email" name="contact_email" value="{{ section.content.contact_email }}" 
+                                           class="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20" 
+                                           placeholder="Email public">
+                                </div>
+                                <div class="relative">
+                                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <input type="text" name="location" value="{{ section.content.location }}" 
+                                           class="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20" 
+                                           placeholder="Localisation (ex: Dakar)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                                <h4 class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Réseaux Sociaux</h4>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-[10px]">in</span>
+                                    <input type="text" name="linkedin" value="{{ section.content.linkedin }}" 
+                                           class="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20" 
+                                           placeholder="URL LinkedIn">
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-[10px]">git</span>
+                                    <input type="text" name="github" value="{{ section.content.github }}" 
+                                           class="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20" 
+                                           placeholder="URL GitHub">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 pt-10 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    <span class="text-emerald-500 mr-2">●</span> Dernière modification : Aujourd'hui
+                </p>
+                <button type="submit" class="w-full md:w-auto px-12 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-primary transition-all shadow-[0_15px_30px_rgba(0,0,0,0.1)] hover:shadow-primary/30 active:scale-95">
+                    Mettre à jour le profil 🚀
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

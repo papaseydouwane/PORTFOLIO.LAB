@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Expertise — {{ portfolio.slug | upper }}{% endblock %}
+
+{% block layout %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,600&family=Plus+Jakarta+Sans:wght@200;400;800&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary: {{ portfolio.theme_config.get('primary_color', '#6366F1') }};
+        --font-main: 'Plus Jakarta Sans', sans-serif;
+        --font-accent: 'Cormorant Garamond', serif;
+        --font-mono: 'Space Grotesk', monospace;
+
+        /* LOGIQUE DE COULEURS DYNAMIQUE (SYNC PORTFOLIO) */
+        {% if portfolio.theme_config.get('bg_mode') == 'light' %}
+            --fond-site: #fcfcfc;
+            --texte-principal: #0f172a;
+            --texte-muet: #64748b;
+            --bordure-douce: rgba(0,0,0,0.06);
+            --card-bg: #ffffff;
+            --btn-bg: rgba(0,0,0,0.05);
+        {% else %}
+            --fond-site: #050505;
+            --texte-principal: #ffffff;
+            --texte-muet: rgba(255,255,255,0.5);
+            --bordure-douce: rgba(255,255,255,0.08);
+            --card-bg: #111111;
+            --btn-bg: rgba(255,255,255,0.05);
+        {% endif %}
+    }
+
+    body { 
+        font-family: var(--font-main); 
+        background-color: var(--fond-site); 
+        color: var(--texte-principal);
+        scroll-behavior: smooth;
+        transition: background-color 0.5s ease;
+    }
+
+    /* --- EFFET DE GRAIN --- */
+    {% if portfolio.theme_config.get('show_grain') %}
+    .noise::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url('https://grainy-gradients.vercel.app/noise.svg');
+        opacity: 0.05;
+        z-index: 9999;
+        pointer-events: none;
+    }
+    {% endif %}
+
+    /* --- STYLE DES CARTES DYNAMIQUE --- */
+    .expertise-card {
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        {% if portfolio.theme_config.get('card_style') == 'brutalist' %}
+            background: white;
+            color: black;
+            border: 3px solid black;
+            box-shadow: 8px 8px 0px var(--primary);
+            border-radius: 0.5rem;
+        {% else %}
+            background: var(--card-bg);
+            border: 1px solid var(--bordure-douce);
+            border-radius: 2rem;
+            backdrop-filter: blur(10px);
+        {% endif %}
+    }
+
+    .expertise-card:hover {
+        transform: translateY(-5px);
+        {% if portfolio.theme_config.get('card_style') != 'brutalist' %}
+            border-color: var(--primary);
+        {% endif %}
+    }
+
+    .serif-title {
+        font-family: var(--font-accent);
+        font-style: italic;
+        color: var(--primary);
+        font-weight: 300;
+    }
+
+    .glow-bg {
+        position: fixed;
+        top: 0; right: 0;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+        opacity: {% if portfolio.theme_config.get('bg_mode') == 'light' %}0.05{% else %}0.1{% endif %};
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .btn-back {
+        background: var(--btn-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--bordure-douce);
+        color: var(--texte-principal);
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        letter-spacing: 0.2em;
+        font-weight: 800;
+        padding: 1.2rem 2.2rem;
+        border-radius: 100px;
+        transition: all 0.4s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--texte-principal);
+        color: var(--fond-site);
+    }
+
+    /* Timeline style */
+    .timeline-dot {
+        box-shadow: 0 0 15px var(--primary);
+    }
+</style>
+
+<div class="noise"></div>
+<div class="glow-bg"></div>
+
+<main class="relative z-10 min-h-screen py-24 px-6">
+    <div class="max-w-7xl mx-auto mb-24">
+        <a href="{{ url_for('render.view_portfolio', slug=portfolio.slug) }}" class="btn-back inline-flex items-center gap-4">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Retour à l'œuvre
+        </a>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-32" data-aos="fade-up">
+            <p class="font-mono text-primary text-[10px] tracking-[0.5em] mb-8 uppercase">Curriculum & Recherche</p>
+            <h1 class="text-6xl md:text-9xl font-black tracking-tighter leading-[0.85] mb-8 uppercase">
+                Savoir & <br>
+                <span class="serif-title">Expertise.</span>
+            </h1>
+            <p class="text-texte-muet text-xl font-light max-w-2xl leading-relaxed">
+                Une exploration de mon parcours académique et de mes contributions intellectuelles.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-20">
+            <div class="lg:col-span-8 space-y-32">
+                
+                <section>
+                    <div class="flex items-center gap-6 mb-16">
+                        <span class="font-mono text-primary text-sm">01/</span>
+                        <h2 class="text-2xl font-bold tracking-widest uppercase">Parcours Académique</h2>
+                        <div class="h-px bg-bordure-douce flex-1"></div>
+                    </div>
+
+                    <div class="space-y-16 border-l border-bordure-douce pl-10 ml-2 relative">
+                        {% for section in sections if section.type == 'formation' %}
+                        <div class="relative" data-aos="fade-up">
+                            <div class="absolute -left-[45px] top-2 w-2.5 h-2.5 rounded-full bg-primary timeline-dot"></div>
+                            <span class="font-mono text-primary text-[10px] tracking-widest uppercase mb-3 block">
+                                {{ section.content.periode }}
+                            </span>
+                            <h3 class="text-3xl font-black tracking-tight mb-2">{{ section.content.diplome }}</h3>
+                            <p class="serif-title text-xl opacity-80 mb-4">{{ section.content.ecole }}</p>
+                            <div class="h-px w-12 bg-bordure-douce"></div>
+                        </div>
+                        {% else %}
+                        <div class="p-8 border border-dashed border-bordure-douce rounded-3xl text-center">
+                            <p class="text-texte-muet italic">Aucun diplôme répertorié pour le moment.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section>
+                    <div class="flex items-center gap-6 mb-16">
+                        <span class="font-mono text-primary text-sm">02/</span>
+                        <h2 class="text-2xl font-bold tracking-widest uppercase">Projets de Recherche</h2>
+                        <div class="h-px bg-bordure-douce flex-1"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {% for section in sections if section.type == 'projet' %}
+                        <div class="expertise-card p-10" data-aos="zoom-in">
+                            <div class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="2"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold mb-4 uppercase tracking-tight">{{ section.content.nom_projet }}</h3>
+                            <p class="text-texte-muet text-sm leading-relaxed mb-8">{{ section.content.description }}</p>
+                            <div class="flex items-center gap-3">
+                                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                <span class="text-[9px] font-mono uppercase tracking-[0.2em] opacity-60">Archive Scientifique</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+
+            <div class="lg:col-span-4 space-y-16">
+                
+                <div class="expertise-card p-10" data-aos="fade-left">
+                    <h3 class="text-[10px] font-mono text-primary tracking-[0.4em] uppercase mb-12 flex items-center gap-4">
+                        <span class="w-8 h-px bg-primary/30"></span>
+                        Compétences
+                    </h3>
+                    
+                    <div class="space-y-10">
+                        {% for section in sections if section.type == 'langue' %}
+                        <div class="group">
+                            <div class="flex justify-between items-end mb-4">
+                                <span class="font-black text-xs uppercase tracking-widest">{{ section.content.nom_langue }}</span>
+                                <span class="text-[10px] font-mono text-primary">{{ section.content.niveau }}</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-bordure-douce rounded-full overflow-hidden">
+                                <div class="h-full bg-primary transition-all duration-1000" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="p-10 bg-primary/5 rounded-[2.5rem] border border-primary/10" data-aos="fade-up">
+                    <h4 class="text-xl font-black mb-4 tracking-tighter uppercase">Collaboration ?</h4>
+                    <p class="text-texte-muet text-sm leading-relaxed mb-8 font-light">
+                        Je suis toujours ouvert aux opportunités de recherche ou aux projets académiques stimulants.
+                    </p>
+                    <a href="mailto:{{ portfolio.owner.email }}" class="inline-block font-mono text-[10px] text-primary font-bold uppercase tracking-[0.3em] border-b-2 border-primary/20 pb-2 hover:border-primary transition-all">
+                        Me contacter par mail
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({ 
+        duration: 1200, 
+        once: true, 
+        easing: 'ease-out-expo' 
+    });
+</script>
+{% endblock %}

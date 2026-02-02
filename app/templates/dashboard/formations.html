@@ -1,0 +1,137 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-5xl mx-auto">
+    
+    <div class="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <a href="{{ url_for('user.dashboard') }}" class="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-colors mb-4">
+                <div class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Retour Cockpit</span>
+            </a>
+            <h1 class="text-4xl font-black tracking-tighter text-slate-900">Parcours <span class="text-primary italic">Académique.</span></h1>
+            <p class="text-slate-500 font-medium mt-2">Valorisez vos diplômes, certifications et travaux de recherche.</p>
+        </div>
+
+        <form action="{{ url_for('user.add_section', section_type='formation') }}" method="POST">
+            <button type="submit" class="group bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl hover:bg-primary transition-all flex items-center gap-3">
+                <span class="text-xl group-hover:rotate-12 transition-transform">🎓</span>
+                <span class="text-xs font-black uppercase tracking-widest">Ajouter un diplôme</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="space-y-10">
+        {% for section in sections %}
+        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] overflow-hidden group hover:border-primary/20 transition-all duration-500">
+            
+            <div class="px-10 py-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-primary rounded-full"></div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Cursus #{{ loop.index }}</span>
+                </div>
+                <a href="{{ url_for('user.delete_section', section_id=section.id) }}" 
+                   class="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                   onclick="return confirm('Supprimer ce diplôme de votre parcours ?')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round"/></svg>
+                </a>
+            </div>
+
+            <form action="{{ url_for('user.update_section', section_id=section.id) }}" method="POST" class="p-10 md:p-14">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Université ou Grande École</label>
+                        <input type="text" name="ecole" value="{{ section.content.ecole }}" 
+                               class="w-full bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl py-4 px-6 text-xl font-bold text-slate-900 transition-all outline-none" 
+                               placeholder="Ex: École Polytechnique, UNCHK...">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Diplôme obtenu ou visé</label>
+                        <input type="text" name="diplome" value="{{ section.content.diplome }}" 
+                               class="w-full bg-slate-50 border-none rounded-xl py-3 px-5 font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 transition-all" 
+                               placeholder="Ex: Master en Cyber-sécurité">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Période d'études</label>
+                        <div class="relative">
+                            <input type="text" name="periode" value="{{ section.content.periode }}" 
+                                   class="w-full bg-slate-50 border-none rounded-xl py-3 px-5 font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 transition-all" 
+                                   placeholder="Ex: 2021 — 2024">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">📅</span>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Cours & Modules Clés</label>
+                        <textarea name="cours" rows="3" 
+                                  class="w-full bg-slate-50 border-none rounded-2xl p-6 text-slate-600 font-medium focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+                                  placeholder="Séparez vos modules par des virgules...">{{ section.content.cours }}</textarea>
+                    </div>
+
+                    <div class="md:col-span-2 mt-4 pt-10 border-t border-slate-50">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Recherche & Mémoire <span class="text-slate-300 font-normal ml-2">(Optionnel)</span></h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                            <div class="relative">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-2">Sujet de thèse / mémoire</label>
+                                <input type="text" name="sujet_these" value="{{ section.content.sujet_these }}" 
+                                       class="w-full bg-white border-b border-slate-100 focus:border-indigo-500 py-2 font-medium text-slate-700 outline-none transition-all" 
+                                       placeholder="Titre complet de vos travaux...">
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-2">Encadrement</label>
+                                    <input type="text" name="encadreurs" value="{{ section.content.encadreurs }}" 
+                                           class="w-full bg-white border-b border-slate-100 focus:border-indigo-500 py-2 font-medium text-slate-700 outline-none transition-all" 
+                                           placeholder="Nom des professeurs">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-2">Mention obtenue</label>
+                                    <input type="text" name="mention" value="{{ section.content.mention }}" 
+                                           class="w-full bg-white border-b border-slate-100 focus:border-indigo-500 py-2 font-bold text-indigo-600 outline-none transition-all" 
+                                           placeholder="Ex: Félicitations du jury">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-slate-50 flex justify-end">
+                    <button type="submit" class="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-primary transition-all shadow-xl hover:shadow-primary/20 active:scale-95">
+                        Mettre à jour ce cursus
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+            <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-3xl mb-6">📚</div>
+            <h3 class="text-xl font-bold text-slate-900 italic">Page blanche ?</h3>
+            <p class="text-slate-400 mt-2 font-medium">Ajoutez votre premier diplôme pour structurer votre profil.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-20 p-8 bg-indigo-900 rounded-[2.5rem] text-white flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative">
+        <div class="relative z-10">
+            <h4 class="text-xl font-black mb-2 tracking-tight">Besoin d'aide pour vos thèses ?</h4>
+            <p class="text-indigo-200 text-sm max-w-sm">Si vous avez plusieurs mémoires, vous pouvez ajouter autant de sections "Formation" que nécessaire.</p>
+        </div>
+        <div class="relative z-10 w-full md:w-auto text-center">
+            <span class="text-5xl opacity-50">✨</span>
+        </div>
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+    </div>
+</div>
+{% endblock %}
