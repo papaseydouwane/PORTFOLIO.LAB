@@ -1,41 +1,36 @@
 from app import create_app, db, bcrypt
 from app.models import User
-import sys
+import os
 
 app = create_app()
 
 def seed_data():
-    """Fonction pour initialiser les données critiques (SuperAdmin)"""
+    """Initialise le SuperAdmin si absent"""
     admin_email = "papaseydou.wane@unchk.edu.sn"
-    
-    admin = User.query.filter_by(email=admin_email).first()
-    
-    if not admin:
-        print(f"--- Création du SuperAdmin : {admin_email} ---")
-        hashed_password = bcrypt.generate_password_hash("Qqmkl@8345").decode('utf-8')
-        
-        super_admin = User(
-            email=admin_email,
-            password=hashed_password,
-            is_admin=True,          
-            profile_type="admin",    
-            onboarding_completed=True 
-        )
-        
-        db.session.add(super_admin)
-        try:
-            db.session.commit()
-            print("--- SuperAdmin créé avec succès ! ---")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Erreur lors du seeding : {e}")
-    else:
-        print("--- Le SuperAdmin existe déjà. ---")
-
-if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-        
-        seed_data()
-        
+        admin = User.query.filter_by(email=admin_email).first()
+        if not admin:
+            hashed_password = bcrypt.generate_password_hash("Qqmkl@8345").decode('utf-8')
+            super_admin = User(
+                email=admin_email,
+                password=hashed_password,
+                is_admin=True,          
+                profile_type="admin",    
+                onboarding_completed=True 
+            )
+            db.session.add(super_admin)
+            try:
+                db.session.commit()
+                print("SuperAdmin créé.")
+            except Exception:
+                db.session.rollback()
+
+# Pour Vercel : On expose l'objet app globalement
+# On ne lance db.create_all() qu'une seule fois au chargement du module
+with app.app_context():
+    db.create_all()
+    seed_data()
+
+if __name__ == "__main__":
+    # Ce bloc ne s'exécute qu'en LOCAL
     app.run(debug=True)
