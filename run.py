@@ -28,8 +28,9 @@ def seed_data():
 # Pour Vercel : On expose l'objet app globalement
 # On ne lance db.create_all() qu'une seule fois au chargement du module
 with app.app_context():
+    from app.models import User # Import important ici
     db.create_all()
-    seed_data()
+    print("Base de données initialisée !")
 
 if __name__ == "__main__":
     # Ce bloc ne s'exécute qu'en LOCAL
